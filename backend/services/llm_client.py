@@ -52,9 +52,14 @@ Commitments:
 {commitments}"""
 
 
+def _has_real_api_key() -> bool:
+    key = settings.openai_api_key
+    return bool(key and key.startswith("sk-") and "your" not in key)
+
+
 async def extract_commitments(notes: str, participants: list[str]) -> list[dict]:
     """Extract commitments from meeting notes using LLM."""
-    if not settings.openai_api_key:
+    if not _has_real_api_key():
         return _mock_extract_commitments(notes, participants)
 
     client = _get_openai()
@@ -92,7 +97,7 @@ async def stream_briefing_text(
     commitments_text: str,
 ) -> AsyncGenerator[str, None]:
     """Stream briefing generation via LLM."""
-    if not settings.openai_api_key:
+    if not _has_real_api_key():
         async for chunk in _mock_stream_briefing(contact_name):
             yield chunk
         return
@@ -119,14 +124,29 @@ async def stream_briefing_text(
 
 
 def _mock_extract_commitments(notes: str, participants: list[str]) -> list[dict]:
-    """Fallback when no OpenAI key is configured."""
+    """Fallback when no OpenAI key is configured. Generates realistic mock commitments."""
+    if len(participants) < 2:
+        return [
+            {
+                "description": "Follow up on action items from meeting",
+                "owner": participants[0] if participants else "User",
+                "recipient": "Team",
+                "due_date": None,
+            }
+        ]
     return [
         {
-            "description": "Review and provide feedback on the proposal",
-            "owner": "User",
-            "recipient": participants[0] if participants else "Unknown",
+            "description": f"Share meeting summary with {participants[1]}",
+            "owner": participants[0],
+            "recipient": participants[1],
             "due_date": None,
-        }
+        },
+        {
+            "description": f"Review and send feedback on the discussed proposal",
+            "owner": participants[1],
+            "recipient": participants[0],
+            "due_date": "2026-02-28T00:00:00Z",
+        },
     ]
 
 

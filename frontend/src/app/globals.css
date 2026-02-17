@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-memory-glow: var(--memory-glow);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Obsidian + Amber: "Memory Light" theme */
+:root {
+  --radius: 0.625rem;
+
+  /* Base surfaces -- three-layer dark */
+  --background: oklch(0.16 0.005 260);
+  --foreground: oklch(0.93 0.01 80);
+
+  --card: oklch(0.20 0.005 260);
+  --card-foreground: oklch(0.93 0.01 80);
+
+  --popover: oklch(0.24 0.005 260);
+  --popover-foreground: oklch(0.93 0.01 80);
+
+  /* Primary -- Amber (memory light) */
+  --primary: oklch(0.78 0.16 75);
+  --primary-foreground: oklch(0.16 0.005 260);
+
+  /* Secondary */
+  --secondary: oklch(0.25 0.005 260);
+  --secondary-foreground: oklch(0.90 0.01 80);
+
+  /* Muted */
+  --muted: oklch(0.25 0.005 260);
+  --muted-foreground: oklch(0.60 0.02 80);
+
+  /* Accent */
+  --accent: oklch(0.25 0.01 75);
+  --accent-foreground: oklch(0.93 0.01 80);
+
+  /* Semantic states */
+  --destructive: oklch(0.65 0.20 25);
+  --success: oklch(0.65 0.17 155);
+  --warning: oklch(0.78 0.16 75);
+
+  /* Borders */
+  --border: oklch(0.30 0.005 260);
+  --input: oklch(0.28 0.005 260);
+  --ring: oklch(0.78 0.16 75);
+
+  /* Memory glow */
+  --memory-glow: oklch(0.78 0.16 75 / 0.15);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(
+        ellipse at 20% 0%,
+        oklch(0.78 0.16 75 / 0.03) 0%,
+        transparent 50%
+      );
+  }
+}
+
+/* Memory reveal animation keyframes */
+@keyframes memory-reveal {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-memory-reveal {
+  animation: memory-reveal 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.animate-pulse-red {
+  animation: pulse-red 2s ease-in-out infinite;
+}

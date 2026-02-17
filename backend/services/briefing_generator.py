@@ -37,9 +37,9 @@ async def stream_briefing(contact_name: str) -> AsyncGenerator[str, None]:
     async for chunk in stream_briefing_text(
         contact_name, memories_text, commitments_text
     ):
-        yield f"data: {json.dumps({'type': 'token', 'content': chunk})}\n\n"
+        yield json.dumps({"type": "token", "content": chunk})
 
-    yield f"data: {json.dumps({'type': 'done'})}\n\n"
+    yield json.dumps({"type": "done"})
 
 
 def _format_memories(raw: dict) -> str:
