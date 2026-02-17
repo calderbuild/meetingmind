@@ -44,3 +44,14 @@ docker-compose.override.yml
 *.log
 .claude/
 MEETING_MEMORY_AGENT_RESEARCH.md
+
+# Screenshots (dev artifacts)
+*.png
+*.jpg
+*.jpeg
+
+# Plans and docs (local only)
+docs/plans/
+
+# Generated READMEs
+frontend/README.md
