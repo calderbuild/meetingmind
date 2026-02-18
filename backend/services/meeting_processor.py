@@ -45,15 +45,20 @@ async def process_meeting(meeting_id: str, meetings_store: dict) -> None:
         # 3. Store commitments
         from backend.routers.commitments import commitments_store
 
+        first_p_lower = meeting.participants[0].lower().strip() if meeting.participants else ""
         for rc in raw_commitments:
             cid = str(uuid.uuid4())
             owner_lower = rc.get("owner", "").lower().strip()
-            self_refs = {"me", "i", "user", "you", "myself"}
-            direction = (
-                CommitmentDirection.I_OWE
-                if owner_lower in self_refs
-                else CommitmentDirection.OWED_TO_ME
-            )
+            # Use LLM-provided direction if available, otherwise infer
+            raw_dir = rc.get("direction", "")
+            if raw_dir == "i_owe":
+                direction = CommitmentDirection.I_OWE
+            elif raw_dir == "owed_to_me":
+                direction = CommitmentDirection.OWED_TO_ME
+            elif owner_lower == first_p_lower or owner_lower in {"me", "i", "user"}:
+                direction = CommitmentDirection.I_OWE
+            else:
+                direction = CommitmentDirection.OWED_TO_ME
             due_date = None
             if rc.get("due_date"):
                 try:

@@ -137,9 +137,11 @@ export default function MeetingDetailPage() {
               <Brain className="h-5 w-5 text-primary" />
               <div>
                 <p className="text-lg font-semibold">
-                  {meeting.status === "completed" ? "Stored" : "--"}
+                  {meeting.status === "completed"
+                    ? meeting.participants.length
+                    : "--"}
                 </p>
-                <p className="text-xs text-muted-foreground">Memories</p>
+                <p className="text-xs text-muted-foreground">Memories stored</p>
               </div>
             </CardContent>
           </Card>

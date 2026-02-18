@@ -114,7 +114,7 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Recent Meetings
-                <Link href="/search" className="text-xs font-normal text-muted-foreground hover:text-primary">
+                <Link href="/contacts" className="text-xs font-normal text-muted-foreground hover:text-primary">
                   View all
                 </Link>
               </CardTitle>

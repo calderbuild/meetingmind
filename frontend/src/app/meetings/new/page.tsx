@@ -14,6 +14,9 @@ export default function NewMeetingPage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [participants, setParticipants] = useState("");
+  const [meetingDate, setMeetingDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -35,7 +38,7 @@ export default function NewMeetingPage() {
           .split(",")
           .map((p) => p.trim())
           .filter(Boolean),
-        meeting_date: new Date().toISOString(),
+        meeting_date: new Date(meetingDate + "T12:00:00Z").toISOString(),
         notes: notes.trim(),
       });
       router.push(`/meetings/${result.meeting_id}`);
@@ -81,6 +84,17 @@ export default function NewMeetingPage() {
                   placeholder="e.g. Weekly Standup with Alice"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Meeting Date
+                </label>
+                <Input
+                  type="date"
+                  value={meetingDate}
+                  onChange={(e) => setMeetingDate(e.target.value)}
                 />
               </div>
 

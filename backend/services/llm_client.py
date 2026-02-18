@@ -24,11 +24,12 @@ You are a meeting analyst. Extract commitments (action items, promises, deadline
 Today's date: {today}
 Participants: {participants}
 
-The note-taker is an outside observer. For each commitment, provide:
+For each commitment, provide:
 - description: What was promised (concise, one sentence)
-- owner: Exact participant name who made the promise. If the note-taker/user themselves promised something, use "User".
-- recipient: Exact participant name who receives the promise
+- owner: Exact participant name who made the promise
+- recipient: Exact participant name who receives the promise (or "Team" if general)
 - due_date: ISO 8601 date if mentioned (use year {year}), null otherwise
+- direction: "i_owe" if {first_participant} is the owner, "owed_to_me" otherwise
 
 Return a JSON array of commitments. If no commitments found, return [].
 
@@ -108,6 +109,7 @@ async def extract_commitments(notes: str, participants: list[str]) -> list[dict]
     today = date.today()
     prompt = EXTRACT_COMMITMENTS_PROMPT.format(
         participants=", ".join(participants),
+        first_participant=participants[0] if participants else "User",
         notes=notes,
         today=today.isoformat(),
         year=today.year,
@@ -186,12 +188,14 @@ def _mock_extract_commitments(notes: str, participants: list[str]) -> list[dict]
             "description": f"Share meeting summary with {participants[1]}",
             "owner": participants[0],
             "recipient": participants[1],
+            "direction": "i_owe",
             "due_date": None,
         },
         {
             "description": f"Review and send feedback on the discussed proposal",
             "owner": participants[1],
             "recipient": participants[0],
+            "direction": "owed_to_me",
             "due_date": "2026-02-28T00:00:00Z",
         },
     ]
