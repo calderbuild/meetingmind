@@ -32,9 +32,12 @@ async def process_meeting(meeting_id: str, meetings_store: dict) -> None:
                 sender_name=participant,
             )
 
-        # 2. Extract commitments via LLM
-        from backend.services.llm_client import extract_commitments
+        # 2. Generate summary + extract commitments via LLM
+        from backend.services.llm_client import extract_commitments, summarize_meeting
 
+        meeting.summary = await summarize_meeting(
+            meeting.notes, meeting.participants
+        )
         raw_commitments = await extract_commitments(
             meeting.notes, meeting.participants
         )

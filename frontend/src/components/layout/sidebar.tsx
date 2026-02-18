@@ -8,6 +8,7 @@ import {
   CheckSquare,
   Search,
   Brain,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/meetings/new", label: "New Meeting", icon: Plus },
   { href: "/commitments", label: "Commitments", icon: CheckSquare },
+  { href: "/contacts", label: "Contacts", icon: Users },
   { href: "/search", label: "Search Memory", icon: Search },
 ];
 

@@ -25,6 +25,7 @@ class Meeting(BaseModel):
     participants: list[str]
     meeting_date: datetime
     notes: str
+    summary: str | None = None
     status: MeetingStatus = MeetingStatus.PROCESSING
     created_at: datetime
 

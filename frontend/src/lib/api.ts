@@ -29,6 +29,7 @@ export interface Meeting {
   participants: string[];
   meeting_date: string;
   notes: string;
+  summary: string | null;
   status: "processing" | "completed" | "failed";
   created_at: string;
 }
@@ -46,6 +47,10 @@ export async function getMeetings() {
 
 export async function getMeeting(id: string) {
   return request<Meeting>(`/api/meetings/${id}`);
+}
+
+export async function getMeetingsByParticipant(participant: string) {
+  return request<Meeting[]>(`/api/meetings?participant=${encodeURIComponent(participant)}`);
 }
 
 // --- Commitments ---

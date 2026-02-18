@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, ArrowRight, Brain, CheckSquare, Users } from "lucide-react";
+import { AlertTriangle, Plus, ArrowRight, Brain, CheckSquare, RefreshCw, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,15 +14,22 @@ export default function Dashboard() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
+  function loadData() {
+    setLoading(true);
+    setError("");
     Promise.all([getMeetings(), getCommitments()])
       .then(([m, c]) => {
         setMeetings(m);
         setCommitments(c);
       })
-      .catch(() => {})
+      .catch(() => setError("Failed to load data. Is the backend running?"))
       .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const pendingCommitments = commitments.filter((c) => c.status === "pending");
@@ -55,6 +62,16 @@ export default function Dashboard() {
           </Link>
         </div>
       </motion.div>
+
+      {error && (
+        <div className="mb-6 flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+          <AlertTriangle className="h-5 w-5 text-destructive" />
+          <p className="flex-1 text-sm text-destructive">{error}</p>
+          <Button variant="outline" size="sm" onClick={loadData}>
+            <RefreshCw className="h-3.5 w-3.5" /> Retry
+          </Button>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="mb-8 grid grid-cols-3 gap-4">

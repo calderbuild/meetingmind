@@ -37,12 +37,15 @@ async def create_meeting(
 
 
 @router.get("", response_model=list[Meeting])
-async def list_meetings():
-    return sorted(
-        meetings_store.values(),
-        key=lambda m: m.meeting_date,
-        reverse=True,
-    )
+async def list_meetings(participant: str | None = None):
+    results = list(meetings_store.values())
+    if participant:
+        p_lower = participant.lower()
+        results = [
+            m for m in results
+            if any(p_lower in p.lower() for p in m.participants)
+        ]
+    return sorted(results, key=lambda m: m.meeting_date, reverse=True)
 
 
 @router.get("/{meeting_id}", response_model=Meeting)

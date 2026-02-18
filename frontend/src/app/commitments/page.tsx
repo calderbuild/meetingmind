@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, X, Loader2 } from "lucide-react";
+import { AlertTriangle, Check, Loader2, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +12,20 @@ import type { Commitment } from "@/lib/api";
 export default function CommitmentsPage() {
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [filter, setFilter] = useState<"all" | "pending" | "completed" | "overdue">("all");
 
-  useEffect(() => {
+  function loadCommitments() {
+    setLoading(true);
+    setError("");
     getCommitments()
       .then(setCommitments)
-      .catch(() => {})
+      .catch(() => setError("Failed to load commitments."))
       .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    loadCommitments();
   }, []);
 
   async function handleComplete(id: string) {
@@ -26,7 +33,7 @@ export default function CommitmentsPage() {
       const updated = await updateCommitment(id, { status: "completed" });
       setCommitments((prev) => prev.map((c) => (c.id === id ? updated : c)));
     } catch {
-      // ignore
+      setError("Failed to update commitment.");
     }
   }
 
@@ -47,6 +54,16 @@ export default function CommitmentsPage() {
           Track what you owe others and what others owe you.
         </p>
       </motion.div>
+
+      {error && (
+        <div className="mb-4 flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+          <AlertTriangle className="h-5 w-5 text-destructive" />
+          <p className="flex-1 text-sm text-destructive">{error}</p>
+          <Button variant="outline" size="sm" onClick={loadCommitments}>
+            <RefreshCw className="h-3.5 w-3.5" /> Retry
+          </Button>
+        </div>
+      )}
 
       {/* Filters */}
       <motion.div

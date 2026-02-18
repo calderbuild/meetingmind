@@ -56,9 +56,45 @@ Commitments:
 {commitments}"""
 
 
+SUMMARIZE_PROMPT = """\
+Summarize this meeting in 2-3 sentences. Focus on key decisions, outcomes, and next steps. Be specific with names and numbers.
+
+Participants: {participants}
+
+<meeting>
+{notes}
+</meeting>
+
+Return ONLY the summary text, no formatting."""
+
+
 def _has_real_api_key() -> bool:
     key = settings.openai_api_key
     return bool(key and key.startswith("sk-") and "your" not in key)
+
+
+async def summarize_meeting(notes: str, participants: list[str]) -> str:
+    """Generate a concise meeting summary."""
+    if not _has_real_api_key():
+        return _mock_summarize(participants)
+
+    client = _get_openai()
+    prompt = SUMMARIZE_PROMPT.format(
+        participants=", ".join(participants),
+        notes=notes,
+    )
+    response = await client.chat.completions.create(
+        model=settings.llm_model_stream,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3,
+        max_tokens=200,
+    )
+    return (response.choices[0].message.content or "").strip()
+
+
+def _mock_summarize(participants: list[str]) -> str:
+    names = " and ".join(participants[:2])
+    return f"{names} discussed project progress, reviewed key metrics, and agreed on next steps for the upcoming sprint."
 
 
 async def extract_commitments(notes: str, participants: list[str]) -> list[dict]:

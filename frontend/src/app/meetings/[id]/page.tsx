@@ -154,6 +154,24 @@ export default function MeetingDetailPage() {
           </Card>
         </motion.div>
 
+        {/* Summary */}
+        {meeting.summary && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.12 }}
+          >
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="p-4">
+                <p className="text-sm font-medium text-primary mb-1">AI Summary</p>
+                <p className="text-sm text-foreground leading-relaxed">
+                  {meeting.summary}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Commitments */}
         {commitments.length > 0 && (
           <motion.div
