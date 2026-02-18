@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Brain, Loader2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { streamBriefing } from "@/lib/api";
@@ -98,8 +100,10 @@ export default function BriefingPage() {
                 ref={contentRef}
                 className="max-h-[60vh] overflow-y-auto prose prose-invert prose-sm max-w-none"
               >
-                <div className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
-                  {content}
+                <div className="text-sm text-foreground leading-relaxed prose prose-invert prose-headings:text-primary prose-headings:font-display prose-strong:text-foreground prose-li:text-foreground max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {content}
+                  </ReactMarkdown>
                   {streaming && (
                     <span className="inline-block h-4 w-0.5 animate-pulse bg-primary ml-0.5" />
                   )}

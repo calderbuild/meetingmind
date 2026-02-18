@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, HTTPException
 
 from backend.models.schemas import Commitment, CommitmentStatus, CommitmentUpdate
@@ -8,12 +10,23 @@ router = APIRouter()
 commitments_store: dict[str, Commitment] = {}
 
 
+def _apply_overdue(c: Commitment) -> Commitment:
+    """Mark pending commitments past due_date as overdue."""
+    if (
+        c.status == CommitmentStatus.PENDING
+        and c.due_date
+        and c.due_date.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc)
+    ):
+        c.status = CommitmentStatus.OVERDUE
+    return c
+
+
 @router.get("", response_model=list[Commitment])
 async def list_commitments(
     status: CommitmentStatus | None = None,
     contact: str | None = None,
 ):
-    results = list(commitments_store.values())
+    results = [_apply_overdue(c) for c in commitments_store.values()]
     if status:
         results = [c for c in results if c.status == status]
     if contact:
@@ -24,7 +37,7 @@ async def list_commitments(
             if contact_lower in c.owner.lower()
             or contact_lower in c.recipient.lower()
         ]
-    return sorted(results, key=lambda c: c.due_date or c.created_at)
+    return sorted(results, key=lambda c: (c.due_date or c.created_at).isoformat())
 
 
 @router.patch("/{commitment_id}", response_model=Commitment)

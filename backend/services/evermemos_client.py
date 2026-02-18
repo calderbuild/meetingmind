@@ -134,14 +134,24 @@ class MockClient:
 
     async def search(self, **kwargs) -> dict:
         query_lower = kwargs["query"].lower()
+        query_words = query_lower.split()
         user_id = kwargs.get("user_id")
 
         matches = []
         for mem in self._memories:
             score = 0
-            if query_lower in mem["content"].lower():
-                score += 1
-            if user_id and user_id.lower() in mem.get("sender_name", "").lower():
+            content_lower = mem["content"].lower()
+            group_lower = mem.get("group_name", "").lower()
+            sender_lower = mem.get("sender_name", "").lower()
+            # Match any query word against content, title, or sender
+            for word in query_words:
+                if word in content_lower:
+                    score += 2
+                if word in group_lower:
+                    score += 1
+                if word in sender_lower:
+                    score += 1
+            if user_id and user_id.lower() in sender_lower:
                 score += 1
             if score > 0:
                 matches.append((score, mem))

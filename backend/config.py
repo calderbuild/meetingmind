@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     # OpenAI
     openai_api_key: str = ""
+    openai_base_url: str = ""
     llm_model_analysis: str = "gpt-4o"
     llm_model_stream: str = "gpt-4o-mini"
 

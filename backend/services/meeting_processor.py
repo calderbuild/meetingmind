@@ -44,9 +44,11 @@ async def process_meeting(meeting_id: str, meetings_store: dict) -> None:
 
         for rc in raw_commitments:
             cid = str(uuid.uuid4())
+            owner_lower = rc.get("owner", "").lower().strip()
+            self_refs = {"me", "i", "user", "you", "myself"}
             direction = (
                 CommitmentDirection.I_OWE
-                if rc.get("owner", "").lower() in ["me", "i", "user", "you"]
+                if owner_lower in self_refs
                 else CommitmentDirection.OWED_TO_ME
             )
             due_date = None

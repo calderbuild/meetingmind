@@ -11,20 +11,24 @@ _client: AsyncOpenAI | None = None
 def _get_openai() -> AsyncOpenAI:
     global _client
     if _client is None:
-        _client = AsyncOpenAI(api_key=settings.openai_api_key)
+        kwargs: dict = {"api_key": settings.openai_api_key}
+        if settings.openai_base_url:
+            kwargs["base_url"] = settings.openai_base_url
+        _client = AsyncOpenAI(**kwargs)
     return _client
 
 
 EXTRACT_COMMITMENTS_PROMPT = """\
 You are a meeting analyst. Extract commitments (action items, promises, deadlines) from the meeting notes below.
 
+Today's date: {today}
 Participants: {participants}
 
-For each commitment, provide:
-- description: What was promised
-- owner: Who made the promise (use exact participant name, or "User" if it's the note-taker)
-- recipient: Who it was promised to
-- due_date: ISO 8601 date if mentioned, null otherwise
+The note-taker is an outside observer. For each commitment, provide:
+- description: What was promised (concise, one sentence)
+- owner: Exact participant name who made the promise. If the note-taker/user themselves promised something, use "User".
+- recipient: Exact participant name who receives the promise
+- due_date: ISO 8601 date if mentioned (use year {year}), null otherwise
 
 Return a JSON array of commitments. If no commitments found, return [].
 
@@ -63,9 +67,14 @@ async def extract_commitments(notes: str, participants: list[str]) -> list[dict]
         return _mock_extract_commitments(notes, participants)
 
     client = _get_openai()
+    from datetime import date
+
+    today = date.today()
     prompt = EXTRACT_COMMITMENTS_PROMPT.format(
         participants=", ".join(participants),
         notes=notes,
+        today=today.isoformat(),
+        year=today.year,
     )
 
     response = await client.chat.completions.create(
@@ -118,6 +127,8 @@ async def stream_briefing_text(
     )
 
     async for chunk in stream:
+        if not chunk.choices:
+            continue
         delta = chunk.choices[0].delta
         if delta.content:
             yield delta.content
