@@ -59,6 +59,7 @@ class CloudClient:
             "group_name": kwargs.get("meeting_name", ""),
             "sender_name": kwargs.get("sender_name", ""),
             "role": "user",
+            "flush": True,
         }
         async with httpx.AsyncClient() as client:
             resp = await client.post(
@@ -77,11 +78,10 @@ class CloudClient:
         if kwargs.get("user_id"):
             payload["user_id"] = kwargs["user_id"]
         if kwargs.get("group_id"):
-            payload["group_id"] = kwargs["group_id"]
+            payload["group_ids"] = [kwargs["group_id"]]
         if kwargs.get("memory_types"):
             payload["memory_types"] = kwargs["memory_types"]
 
-        # EverMemOS uses GET + body (non-standard)
         async with httpx.AsyncClient() as client:
             resp = await client.request(
                 "GET",

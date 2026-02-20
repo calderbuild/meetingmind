@@ -9,8 +9,10 @@ async def stream_briefing(contact_name: str) -> AsyncGenerator[str, None]:
     """Orchestrate briefing generation: retrieve memories, then stream LLM output."""
     # 1. Retrieve memories from EverMemOS
     client = get_client()
+    user_id = contact_name.lower().replace(" ", "_")
     memories_raw = await client.search(
         query=f"{contact_name} discussions commitments decisions",
+        user_id=user_id,
         retrieve_method="hybrid",
         top_k=15,
     )
@@ -44,14 +46,13 @@ async def stream_briefing(contact_name: str) -> AsyncGenerator[str, None]:
 
 
 def _format_memories(raw: dict) -> str:
+    from backend.routers.search import _flatten_memories
+
     lines = []
-    memories = raw.get("result", {}).get("memories", [])
-    for group in memories:
-        for mem_type, items in group.items():
-            for item in items:
-                summary = item.get("summary", item.get("episode", ""))
-                timestamp = item.get("timestamp", "")
-                lines.append(f"[{mem_type}] ({timestamp}) {summary}")
+    for mem_type, item in _flatten_memories(raw):
+        summary = item.get("summary", item.get("episode", ""))
+        timestamp = item.get("timestamp", "")
+        lines.append(f"[{mem_type}] ({timestamp}) {summary}")
     return "\n".join(lines) if lines else "No previous memories found."
 
 
