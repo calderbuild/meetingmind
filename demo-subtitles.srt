@@ -1,0 +1,83 @@
+1
+00:00:00,000 --> 00:00:05,000
+MeetingMind -- an AI meeting memory agent built on EverMemOS.
+
+2
+00:00:05,000 --> 00:00:10,000
+It helps you record meetings, extract commitments, and search memories, so you never forget a detail.
+
+3
+00:00:10,000 --> 00:00:15,500
+Let's start with the Dashboard, a complete overview of all meetings, commitments, and contacts.
+
+4
+00:00:15,500 --> 00:00:22,000
+Three meetings, fifteen commitments, seven contacts, all your key data at a glance.
+
+5
+00:00:22,000 --> 00:00:30,000
+Click into a meeting to see the AI-generated summary and every commitment extracted from the conversation.
+
+6
+00:00:30,000 --> 00:00:35,000
+Each commitment is labeled with its direction, whether you owe it or it's owed to you.
+
+7
+00:00:35,000 --> 00:00:42,000
+Now let's submit a new meeting. Fill in the title, date, participants, and meeting notes.
+
+8
+00:00:42,000 --> 00:00:50,000
+After submitting, the backend processes automatically, storing meeting content into EverMemOS as persistent memory.
+
+9
+00:00:50,000 --> 00:01:00,000
+Meanwhile, the AI generates a summary and extracts all commitment items from the notes.
+
+10
+00:01:00,000 --> 00:01:07,000
+Processing complete. The AI extracted four commitments, each with an owner, due date, and direction.
+
+11
+00:01:07,000 --> 00:01:16,000
+Switch to the Commitments page, where all commitments across every meeting are consolidated and trackable.
+
+12
+00:01:16,000 --> 00:01:22,000
+Pending, overdue, completed. The full lifecycle of every promise, at a glance.
+
+13
+00:01:22,000 --> 00:01:30,000
+The Contacts page shows all meeting participants. Click any contact to see their full interaction timeline.
+
+14
+00:01:30,000 --> 00:01:38,000
+Here is Alice Chen's profile, showing her meetings and open commitments.
+
+15
+00:01:38,000 --> 00:01:46,000
+Next is the core feature: AI Briefing, generating an intelligent briefing for any contact.
+
+16
+00:01:46,000 --> 00:01:55,000
+The system retrieves relevant memories from EverMemOS, combines them with open commitments, and streams the briefing in real time.
+
+17
+00:01:55,000 --> 00:02:03,000
+Review everything before your next meeting, so you walk in fully prepared.
+
+18
+00:02:03,000 --> 00:02:12,000
+Finally, Search Memory. Enter keywords and a contact name to perform semantic search directly against EverMemOS.
+
+19
+00:02:12,000 --> 00:02:22,000
+Searching for roadmap and Redis, EverMemOS returns matching episodic memory fragments.
+
+20
+00:02:22,000 --> 00:02:32,000
+All memories are retrieved through hybrid search, combining semantic understanding with keyword matching for precise recall.
+
+21
+00:02:32,000 --> 00:02:44,000
+MeetingMind. Let AI remember every meeting and track every commitment, so nothing falls through the cracks.
