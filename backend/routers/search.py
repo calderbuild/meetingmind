@@ -12,17 +12,39 @@ def _normalize_user_id(name: str) -> str:
 
 
 @router.get("", response_model=list[SearchResult])
-async def search_memories(query: str, contact: str | None = None):
+async def search_memories(
+    query: str,
+    contact: str | None = None,
+    retrieve_method: str = "hybrid",
+    memory_types: str | None = None,
+):
     client = get_client()
     user_id = _normalize_user_id(contact) if contact else None
     # Cloud API requires user_id or group_ids
     if settings.evermemos_mode == "cloud" and not user_id:
         return []
+    types_list = memory_types.split(",") if memory_types else None
     results = await client.search(
         query=query,
         user_id=user_id,
-        retrieve_method="hybrid",
+        retrieve_method=retrieve_method,
+        memory_types=types_list,
         top_k=15,
+    )
+    return _format_results(results)
+
+
+@router.get("/profiles/{contact_name}", response_model=list[SearchResult])
+async def get_contact_profiles(contact_name: str):
+    """Retrieve profile memories for a specific contact from EverMemOS."""
+    client = get_client()
+    user_id = _normalize_user_id(contact_name)
+    results = await client.search(
+        query=contact_name,
+        user_id=user_id,
+        retrieve_method="hybrid",
+        memory_types=["profile"],
+        top_k=10,
     )
     return _format_results(results)
 

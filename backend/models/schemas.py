@@ -89,16 +89,10 @@ class SearchResult(BaseModel):
     relevance_score: float | None = None
 
 
-# --- Memory types for UI display ---
+# --- EverMemOS memory types ---
 
-class MemoryType(str, Enum):
-    COMMITMENT = "commitment"
-    DECISION = "decision"
-    FACT = "fact"
-    RELATIONSHIP = "relationship"
-
-
-class ExtractedMemory(BaseModel):
-    type: MemoryType
-    content: str
-    participants: list[str] = []
+class EverMemOSMemoryType(str, Enum):
+    EPISODIC = "episodic_memory"
+    PROFILE = "profile"
+    FORESIGHT = "foresight"
+    EVENT_LOG = "event_log"

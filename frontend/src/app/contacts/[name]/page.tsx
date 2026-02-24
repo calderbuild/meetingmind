@@ -19,14 +19,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getMeetingsByParticipant, getCommitments } from "@/lib/api";
-import type { Meeting, Commitment } from "@/lib/api";
+import { getMeetingsByParticipant, getCommitments, getContactProfiles } from "@/lib/api";
+import type { Meeting, Commitment, SearchResult } from "@/lib/api";
 
 export default function ContactTimelinePage() {
   const { name } = useParams<{ name: string }>();
   const contactName = decodeURIComponent(name || "");
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [commitments, setCommitments] = useState<Commitment[]>([]);
+  const [profiles, setProfiles] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -37,10 +38,12 @@ export default function ContactTimelinePage() {
     Promise.all([
       getMeetingsByParticipant(contactName),
       getCommitments({ contact: contactName }),
+      getContactProfiles(contactName).catch(() => []),
     ])
-      .then(([m, c]) => {
+      .then(([m, c, p]) => {
         setMeetings(m);
         setCommitments(c);
+        setProfiles(p);
       })
       .catch(() => setError("Failed to load contact data."))
       .finally(() => setLoading(false));
@@ -150,6 +153,41 @@ export default function ContactTimelinePage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Profile Insights from EverMemOS */}
+        {profiles.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.12 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <div className="flex h-5 w-5 items-center justify-center rounded bg-purple-500/20">
+                    <Brain className="h-3 w-3 text-purple-400" />
+                  </div>
+                  Profile Insights
+                  <Badge variant="outline" className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[10px]">
+                    EverMemOS
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {profiles.map((p, i) => (
+                  <div key={i} className="rounded-md border border-purple-500/10 bg-purple-500/5 p-3">
+                    <p className="text-sm text-foreground">{p.content}</p>
+                    {p.meeting_date && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {new Date(p.meeting_date).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Open Commitments */}
         {pendingCommitments.length > 0 && (

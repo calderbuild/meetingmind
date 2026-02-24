@@ -129,8 +129,23 @@ export interface SearchResult {
   relevance_score: number | null;
 }
 
-export async function searchMemories(query: string, contact?: string) {
+export type RetrieveMethod = "keyword" | "vector" | "hybrid" | "agentic";
+
+export async function getContactProfiles(contactName: string) {
+  return request<SearchResult[]>(`/api/search/profiles/${encodeURIComponent(contactName)}`);
+}
+
+export async function searchMemories(
+  query: string,
+  contact?: string,
+  options?: {
+    retrieve_method?: RetrieveMethod;
+    memory_types?: string[];
+  }
+) {
   const params = new URLSearchParams({ query });
   if (contact) params.set("contact", contact);
+  if (options?.retrieve_method) params.set("retrieve_method", options.retrieve_method);
+  if (options?.memory_types?.length) params.set("memory_types", options.memory_types.join(","));
   return request<SearchResult[]>(`/api/search?${params.toString()}`);
 }
