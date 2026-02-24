@@ -21,10 +21,17 @@ async def process_meeting(meeting_id: str, meetings_store: dict) -> None:
         from backend.services.evermemos_client import get_client
 
         client = get_client()
+        # Use current time as timestamp; EverMemOS rejects future dates.
+        # Meeting date is preserved in the notes content itself.
+        now = datetime.now(timezone.utc)
+        store_time = min(meeting.meeting_date.replace(tzinfo=timezone.utc)
+                         if meeting.meeting_date.tzinfo is None
+                         else meeting.meeting_date,
+                         now).isoformat()
         for i, participant in enumerate(meeting.participants):
             await client.store_message(
                 message_id=f"{meeting_id}_{i}",
-                timestamp=meeting.meeting_date.isoformat(),
+                timestamp=store_time,
                 sender_id=participant.lower().replace(" ", "_"),
                 content=meeting.notes,
                 meeting_id=meeting_id,

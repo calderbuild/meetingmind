@@ -36,7 +36,7 @@ Next.js 15 (App Router)  -->  FastAPI (async, port 8000)  -->  EverMemOS Cloud A
   Obsidian+Amber theme      BackgroundTasks for processing   Hybrid semantic search
 ```
 
-**Backend** serves a REST API at `/api/*`. Four routers: `meetings`, `commitments`, `briefings`, `search`. All data lives in Python dicts (`meetings_store`, `commitments_store`) -- no database. Meeting submission triggers background processing: store memories in EverMemOS, then extract commitments via LLM.
+**Backend** serves a REST API at `/api/*`. Four routers: `meetings`, `commitments`, `briefings`, `search`. All data lives in Python dicts (`meetings_store`, `commitments_store`) -- no database, all state lost on restart. Meeting submission triggers background processing: store memories in EverMemOS, then extract commitments via LLM. After any backend code change that triggers hot-reload, run `make seed` again to repopulate data.
 
 **Frontend** is a Next.js 15 App Router project with 6 pages. API calls go through `src/lib/api.ts` which points to `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`). Briefing page uses `EventSource` for SSE streaming.
 
@@ -62,6 +62,15 @@ Next.js 15 (App Router)  -->  FastAPI (async, port 8000)  -->  EverMemOS Cloud A
 ### SSE Streaming
 
 `sse-starlette` EventSourceResponse automatically adds the `data:` prefix to each event. The briefing generator yields plain JSON strings -- do NOT manually prepend `data:`.
+
+## EverMemOS Cloud Gotchas
+
+- Cloud search requires `user_id` or `group_ids`; omitting both returns 422. The search router returns `[]` in cloud mode when no contact is provided.
+- Cloud search uses `group_ids` (array), not `group_id` (string).
+- `flush: true` in store_message forces immediate memory extraction, but processing is still async server-side (~20s before searchable).
+- Cloud returns `group_name: null` (key present, value None) -- use `item.get("group_name") or fallback`, not `item.get("group_name", fallback)`.
+- `create_time` must not be in the future; `meeting_processor.py` caps it to `min(meeting_date, now)`.
+- User IDs are normalized as `name.lower().replace(" ", "_")` for consistent storage/retrieval.
 
 ## Environment
 
