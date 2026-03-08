@@ -1,114 +1,93 @@
 # MeetingMind
 
-AI-powered meeting memory agent built on [EverMemOS](https://www.evermind.ai/). Submit meeting transcripts, automatically extract commitments, and generate pre-meeting briefings for any contact.
+An AI meeting memory agent that ensures nothing from your meetings falls through the cracks. Built on [EverMemOS](https://evermind.ai) for the Memory Genesis Competition 2026.
 
-**Track:** Agent + Memory | **Competition:** Memory Genesis Competition 2026
+**Demo Video:** [Watch on YouTube](https://youtu.be/LOcvUe3Rhg4)
 
-## Features
+## 1. Features
 
-- **Meeting Processing** -- Submit transcripts, AI extracts commitments and stores episodic memories in EverMemOS
-- **Commitment Tracking** -- Bidirectional tracking (what you owe / what's owed to you) with status management
-- **Contact Briefings** -- Real-time streamed briefings with last meeting summary, open commitments, and relationship context
-- **Semantic Search** -- Hybrid search across all stored meeting memories via EverMemOS retrieval API
+- **Meeting Notes Ingestion** -- Submit meeting notes with participants and dates. MeetingMind stores them as persistent episodic memories in EverMemOS and automatically generates summaries.
+- **Automatic Commitment Extraction** -- An LLM analyzes each meeting to extract commitments: who owes what to whom, with due dates. Commitments are tracked with pending/completed/overdue status.
+- **Contact Profiles** -- Each contact has a dedicated page showing meeting history, open commitments, and profile insights from EverMemOS memory.
+- **Pre-Meeting Briefing** -- Before meeting someone, generate a streaming briefing that pulls together past discussions, open commitments, and relationship context. Delivered via real-time SSE streaming.
+- **Semantic Memory Search** -- Search across all stored memories with three retrieval modes:
+  - **Quick** (keyword, <100ms) -- exact match
+  - **Smart** (hybrid, ~300ms) -- combined keyword + vector
+  - **Deep** (agentic, 2-5s) -- LLM-guided query expansion for complex questions
+- **Memory Type Visualization** -- Search results display color-coded badges for different EverMemOS memory types (Episode, Profile, Foresight, Event).
 
-## Architecture
+## 2. How We Use EverMemOS Memory
 
+MeetingMind integrates deeply with the EverMemOS Cloud API across three dimensions:
+
+### Memory Storage
+When a meeting is submitted, each participant's notes are stored as messages via `store_message` with `flush: true` for immediate memory extraction. EverMemOS processes these into episodic memories that capture the semantic essence of discussions.
+
+### Memory Retrieval (4 methods)
+- **Keyword retrieval** -- Fast exact-match search for known terms (used in Quick search mode)
+- **Vector retrieval** -- Semantic similarity search that understands meaning, not just words
+- **Hybrid retrieval** -- Combines keyword + vector for balanced results (default for search, used for profile queries)
+- **Agentic retrieval** -- LLM-powered query expansion that breaks complex questions into sub-queries, retrieves from multiple angles, and synthesizes results (used for briefing generation)
+
+### Memory Types
+- **Episodic Memory** -- Records of what happened in meetings: discussions, decisions, action items
+- **Profile Memory** -- Accumulated knowledge about contacts: communication preferences, interests, working style
+- **Foresight / Event Log** -- Future-oriented predictions and structured event records (supported in search display)
+
+### Architecture Flow
 ```
-Next.js 15 (App Router)  -->  FastAPI (async)  -->  EverMemOS Cloud API
-     |                            |                       |
-  Tailwind v4               OpenAI GPT-4o           Memory Storage
-  Framer Motion             SSE Streaming           Hybrid Retrieval
-  Obsidian+Amber Theme      Mock Mode               Episodic Memory
+Meeting Notes --> store_message (EverMemOS) --> Episodic Memory Formation
+                                            --> Profile Memory Consolidation
+
+Briefing Request --> agentic retrieval (episodic) + hybrid retrieval (profile)
+                --> LLM generates contextual briefing via SSE streaming
+
+Search Query --> user-selected retrieval method --> formatted results with memory type badges
 ```
 
-## Quick Start
+## 3. How Memory Helps Users
 
-### Prerequisites
+**Problem:** People forget what was discussed in meetings, lose track of promises made, and walk into follow-up meetings without context.
 
-- Python 3.11+
-- Node.js 20+ (22 recommended)
-- OpenAI API key (optional, mock mode works without it)
-- EverMemOS API key (optional, mock mode works without it)
+**Solution with EverMemOS memory:**
 
-### Setup
+1. **Never lose meeting context** -- Every discussion is stored as persistent episodic memory. Unlike simple note-taking, EverMemOS extracts the semantic meaning, so searching for "budget concerns" finds relevant discussions even if the word "budget" was never used.
+
+2. **Track commitments automatically** -- Instead of manually maintaining a task list from meetings, MeetingMind extracts commitments with owner, recipient, and due dates. Users see at a glance what they owe others and what others owe them.
+
+3. **Walk into meetings prepared** -- The briefing feature uses agentic retrieval to pull together everything relevant about a contact: past discussions, open commitments, and relationship insights. This takes 2-5 seconds instead of 30 minutes of manual note review.
+
+4. **Build relationship memory over time** -- As more meetings are recorded, EverMemOS builds profile memories that capture communication preferences and working patterns. The system gets more useful with every meeting.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 15 (App Router), Tailwind v4, Framer Motion |
+| Backend | FastAPI (async), SSE via sse-starlette |
+| Memory | EverMemOS Cloud API (api.evermind.ai) |
+| LLM | OpenAI GPT for commitment extraction and briefing generation |
+| Theme | Dark Obsidian + Amber, oklch color space |
+
+## Getting Started
 
 ```bash
-# Clone
+# 1. Clone and setup
 git clone https://github.com/calderbuild/meetingmind.git
 cd meetingmind
-
-# Environment
 cp .env.template .env
-# Edit .env to add your API keys (or leave empty for mock mode)
 
-# Backend
-pip install -r backend/requirements.txt
+# 2. Start backend (Python 3.11+)
+make backend    # runs on port 8000
 
-# Frontend
-cd frontend && npm install && cd ..
-```
+# 3. Start frontend (Node 22)
+make frontend   # runs on port 3000
 
-### Run
-
-```bash
-# Terminal 1: Backend
-make backend
-
-# Terminal 2: Frontend
-make frontend
-
-# Terminal 3: Seed demo data
+# 4. Seed demo data
 make seed
 ```
 
-Open http://localhost:3000
-
-## Project Structure
-
-```
-backend/
-  config.py                 # Pydantic settings from .env
-  main.py                   # FastAPI app with CORS and routers
-  models/schemas.py         # Data models (Meeting, Commitment, Search)
-  routers/
-    meetings.py             # POST submit, GET list/detail
-    commitments.py          # GET list, PATCH status
-    briefings.py            # GET SSE streaming briefing
-    search.py               # GET semantic search
-  services/
-    evermemos_client.py     # EverMemOS Cloud + Mock client
-    llm_client.py           # OpenAI extraction + streaming
-    meeting_processor.py    # Background: store memories + extract commitments
-    briefing_generator.py   # Orchestrate retrieval + LLM streaming
-
-frontend/
-  src/app/
-    page.tsx                # Dashboard
-    meetings/new/page.tsx   # Submit meeting
-    meetings/[id]/page.tsx  # Meeting detail + commitments
-    briefings/[contact]/    # Streaming contact briefing
-    commitments/page.tsx    # Commitment tracker
-    search/page.tsx         # Memory search
-  src/components/
-    layout/sidebar.tsx      # App navigation
-    ui/                     # Button, Card, Badge, Input, Textarea, Separator
-
-scripts/
-  seed_demo.py              # Seed 3 demo meetings with realistic transcripts
-```
-
-## EverMemOS Integration
-
-MeetingMind uses the EverMemOS Cloud API (`api.evermind.ai/api/v0`) for:
-
-| Endpoint | Usage |
-|----------|-------|
-| `POST /memories` | Store meeting messages as episodic memories |
-| `GET /memories/search` | Hybrid semantic search for briefing context |
-| `GET /memories` | Retrieve stored memories by type |
-
-Set `EVERMEMOS_MODE=cloud` in `.env` and provide your API key to enable.
-Default `EVERMEMOS_MODE=mock` uses an in-memory store for development.
+Set `EVERMEMOS_MODE=mock` in `.env` to run without API keys (default). Set `EVERMEMOS_MODE=cloud` with `EVERMEMOS_API_KEY` and `OPENAI_API_KEY` for full EverMemOS integration.
 
 ## License
 
