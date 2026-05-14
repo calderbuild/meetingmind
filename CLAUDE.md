@@ -29,18 +29,30 @@ No test suite exists yet. Use `next build` as the primary frontend correctness c
 ## Architecture
 
 ```
-Next.js 15 (App Router)  -->  FastAPI (async, port 8000)  -->  EverMemOS Cloud API
+Next.js 15 (App Router)  -->  FastAPI (async, port 8000)  -->  EverOS Cloud API
      |                            |                                |
   Tailwind v4               In-memory dicts                  api.evermind.ai/api/v0
-  Framer Motion             SSE via sse-starlette            Episodic memory storage
-  Obsidian+Amber theme      BackgroundTasks for processing   Hybrid semantic search
+  Framer Motion             SSE via sse-starlette            4 memory types
+  Obsidian+Amber theme      BackgroundTasks for processing   4 retrieval methods
 ```
 
-**Backend** serves a REST API at `/api/*`. Four routers: `meetings`, `commitments`, `briefings`, `search`. All data lives in Python dicts (`meetings_store`, `commitments_store`) -- no database, all state lost on restart. Meeting submission triggers background processing: store memories in EverMemOS, then extract commitments via LLM. After any backend code change that triggers hot-reload, run `make seed` again to repopulate data.
+**Backend** serves a REST API at `/api/*`. Four routers: `meetings`, `commitments`, `briefings`, `search`. All data lives in Python dicts (`meetings_store`, `commitments_store`) -- no database, all state lost on restart. Meeting submission triggers background processing: store memories in EverOS, then extract commitments via LLM. After any backend code change that triggers hot-reload, run `make seed` again to repopulate data.
 
 **Frontend** is a Next.js 15 App Router project with 6 pages. API calls go through `src/lib/api.ts` which points to `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`). Briefing page uses `EventSource` for SSE streaming.
 
-**EverMemOS client** (`backend/services/evermemos_client.py`) has two modes controlled by `EVERMEMOS_MODE` env var: `mock` (in-memory, no API keys needed) and `cloud` (real API calls to `api.evermind.ai`).
+**EverOS client** (`backend/services/everos_client.py`) has two modes controlled by `EVEROS_MODE` env var: `mock` (in-memory, no API keys needed) and `cloud` (real API calls to `api.evermind.ai`).
+
+### Memory Integration
+
+EverOS provides 4 memory types: `episodic_memory`, `profile`, `foresight`, `event_log`. Note: `foresight` and `event_log` only work in "assistant" scene mode, not the project's "Team Collaboration" scene.
+
+4 retrieval methods with different latency/depth tradeoffs:
+- `keyword`: exact match, <100ms
+- `vector`: semantic similarity, 200-500ms
+- `hybrid` (default for search): combined keyword+vector, 200-600ms
+- `agentic` (used by briefings): LLM-guided query expansion, 2-5s
+
+Search API accepts `retrieve_method` and `memory_types` (comma-separated) query params. Briefing generator uses agentic retrieval for episodic memories + hybrid for profile memories.
 
 ## Key Conventions
 
@@ -63,7 +75,7 @@ Next.js 15 (App Router)  -->  FastAPI (async, port 8000)  -->  EverMemOS Cloud A
 
 `sse-starlette` EventSourceResponse automatically adds the `data:` prefix to each event. The briefing generator yields plain JSON strings -- do NOT manually prepend `data:`.
 
-## EverMemOS Cloud Gotchas
+## EverOS Cloud Gotchas
 
 - Cloud search requires `user_id` or `group_ids`; omitting both returns 422. The search router returns `[]` in cloud mode when no contact is provided.
 - Cloud search uses `group_ids` (array), not `group_id` (string).
@@ -74,4 +86,4 @@ Next.js 15 (App Router)  -->  FastAPI (async, port 8000)  -->  EverMemOS Cloud A
 
 ## Environment
 
-Copy `.env.template` to `.env`. Set `EVERMEMOS_MODE=mock` (default) to run without any API keys. Set `EVERMEMOS_MODE=cloud` and provide `EVERMEMOS_API_KEY` + `OPENAI_API_KEY` for real integrations.
+Copy `.env.template` to `.env`. Set `EVEROS_MODE=mock` (default) to run without any API keys. Set `EVEROS_MODE=cloud` and provide `EVEROS_API_KEY` + `OPENAI_API_KEY` for real integrations.

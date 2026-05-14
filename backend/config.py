@@ -4,10 +4,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "MeetingMind API"
 
-    # EverMemOS
-    evermemos_mode: str = "mock"  # mock | cloud
-    evermemos_base_url: str = "https://api.evermind.ai"
-    evermemos_api_key: str = ""
+    # EverOS
+    everos_mode: str = "mock"  # mock | cloud
+    everos_base_url: str = "https://api.evermind.ai"
+    everos_api_key: str = ""
 
     # OpenAI
     openai_api_key: str = ""

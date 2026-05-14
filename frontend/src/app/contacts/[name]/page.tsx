@@ -19,7 +19,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getMeetingsByParticipant, getCommitments, getContactProfiles } from "@/lib/api";
+import {
+  getMeetingsByParticipant,
+  getCommitments,
+  getContactProfiles,
+} from "@/lib/api";
 import type { Meeting, Commitment, SearchResult } from "@/lib/api";
 
 export default function ContactTimelinePage() {
@@ -54,10 +58,10 @@ export default function ContactTimelinePage() {
   }, [contactName]);
 
   const pendingCommitments = commitments.filter(
-    (c) => c.status === "pending" || c.status === "overdue"
+    (c) => c.status === "pending" || c.status === "overdue",
   );
   const completedCommitments = commitments.filter(
-    (c) => c.status === "completed"
+    (c) => c.status === "completed",
   );
 
   if (loading) {
@@ -91,7 +95,8 @@ export default function ContactTimelinePage() {
                 {contactName}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                {meetings.length} meeting{meetings.length !== 1 ? "s" : ""} recorded
+                {meetings.length} meeting{meetings.length !== 1 ? "s" : ""}{" "}
+                recorded
               </p>
             </div>
           </div>
@@ -154,7 +159,7 @@ export default function ContactTimelinePage() {
           </Card>
         </motion.div>
 
-        {/* Profile Insights from EverMemOS */}
+        {/* Profile Insights from EverOS */}
         {profiles.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -168,14 +173,20 @@ export default function ContactTimelinePage() {
                     <Brain className="h-3 w-3 text-purple-400" />
                   </div>
                   Profile Insights
-                  <Badge variant="outline" className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[10px]">
-                    EverMemOS
+                  <Badge
+                    variant="outline"
+                    className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[10px]"
+                  >
+                    EverOS
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {profiles.map((p, i) => (
-                  <div key={i} className="rounded-md border border-purple-500/10 bg-purple-500/5 p-3">
+                  <div
+                    key={i}
+                    className="rounded-md border border-purple-500/10 bg-purple-500/5 p-3"
+                  >
                     <p className="text-sm text-foreground">{p.content}</p>
                     {p.meeting_date && (
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -271,7 +282,7 @@ export default function ContactTimelinePage() {
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {new Date(
-                                meeting.meeting_date
+                                meeting.meeting_date,
                               ).toLocaleDateString()}{" "}
                               - {meeting.participants.join(", ")}
                             </p>

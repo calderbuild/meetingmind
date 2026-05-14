@@ -1,7 +1,7 @@
 import json
 from typing import AsyncGenerator
 
-from backend.services.evermemos_client import get_client
+from backend.services.everos_client import get_client
 from backend.services.llm_client import stream_briefing_text
 
 
@@ -33,12 +33,10 @@ async def stream_briefing(contact_name: str) -> AsyncGenerator[str, None]:
     contact_commitments = [
         _apply_overdue(c)
         for c in commitments_store.values()
-        if contact_lower in c.owner.lower()
-        or contact_lower in c.recipient.lower()
+        if contact_lower in c.owner.lower() or contact_lower in c.recipient.lower()
     ]
     open_commitments = [
-        c for c in contact_commitments
-        if c.status.value in ("pending", "overdue")
+        c for c in contact_commitments if c.status.value in ("pending", "overdue")
     ]
 
     # 3. Format context for LLM
@@ -77,5 +75,7 @@ def _format_commitments(commitments: list) -> str:
         due = f" (due: {c.due_date.strftime('%Y-%m-%d')})" if c.due_date else ""
         status_tag = f" [OVERDUE]" if c.status.value == "overdue" else ""
         direction = "You owe" if c.direction.value == "i_owe" else "They owe you"
-        lines.append(f"- [{direction}] {c.description} (owner: {c.owner} -> {c.recipient}){due}{status_tag}")
+        lines.append(
+            f"- [{direction}] {c.description} (owner: {c.owner} -> {c.recipient}){due}{status_tag}"
+        )
     return "\n".join(lines)

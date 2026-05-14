@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from backend.config import settings
 from backend.models.schemas import SearchRequest, SearchResult
-from backend.services.evermemos_client import get_client
+from backend.services.everos_client import get_client
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ async def search_memories(
     client = get_client()
     user_id = _normalize_user_id(contact) if contact else None
     # Cloud API requires user_id or group_ids
-    if settings.evermemos_mode == "cloud" and not user_id:
+    if settings.everos_mode == "cloud" and not user_id:
         return []
     types_list = memory_types.split(",") if memory_types else None
     results = await client.search(
@@ -36,7 +36,7 @@ async def search_memories(
 
 @router.get("/profiles/{contact_name}", response_model=list[SearchResult])
 async def get_contact_profiles(contact_name: str):
-    """Retrieve profile memories for a specific contact from EverMemOS."""
+    """Retrieve profile memories for a specific contact from EverOS."""
     client = get_client()
     user_id = _normalize_user_id(contact_name)
     results = await client.search(

@@ -55,3 +55,14 @@ docs/plans/
 
 # Generated READMEs
 frontend/README.md
+
+# Personal / competition submission docs (never commit)
+Excellence Award_*.docx
+*Prize Information Form*.xlsx
+信息表*.xlsx
+罗林_*.pdf
+奖金领取指南.md
+原始未压缩备份/
+hackathon.md
+.playwright-mcp/
+.ruff_cache/

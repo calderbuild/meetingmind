@@ -9,7 +9,7 @@ from backend.routers import briefings, commitments, meetings, search
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print(f"Starting {settings.app_name} (EverMemOS mode: {settings.evermemos_mode})")
+    print(f"Starting {settings.app_name} (EverOS mode: {settings.everos_mode})")
     yield
     print("Shutting down")
 
@@ -34,5 +34,5 @@ app.include_router(search.router, prefix="/api/search", tags=["search"])
 async def health():
     return {
         "status": "ok",
-        "evermemos_mode": settings.evermemos_mode,
+        "everos_mode": settings.everos_mode,
     }

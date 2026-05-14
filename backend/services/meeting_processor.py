@@ -17,17 +17,19 @@ async def process_meeting(meeting_id: str, meetings_store: dict) -> None:
         return
 
     try:
-        # 1. Store in EverMemOS
-        from backend.services.evermemos_client import get_client
+        # 1. Store in EverOS
+        from backend.services.everos_client import get_client
 
         client = get_client()
-        # Use current time as timestamp; EverMemOS rejects future dates.
+        # Use current time as timestamp; EverOS rejects future dates.
         # Meeting date is preserved in the notes content itself.
         now = datetime.now(timezone.utc)
-        store_time = min(meeting.meeting_date.replace(tzinfo=timezone.utc)
-                         if meeting.meeting_date.tzinfo is None
-                         else meeting.meeting_date,
-                         now).isoformat()
+        store_time = min(
+            meeting.meeting_date.replace(tzinfo=timezone.utc)
+            if meeting.meeting_date.tzinfo is None
+            else meeting.meeting_date,
+            now,
+        ).isoformat()
         for i, participant in enumerate(meeting.participants):
             await client.store_message(
                 message_id=f"{meeting_id}_{i}",
@@ -42,17 +44,15 @@ async def process_meeting(meeting_id: str, meetings_store: dict) -> None:
         # 2. Generate summary + extract commitments via LLM
         from backend.services.llm_client import extract_commitments, summarize_meeting
 
-        meeting.summary = await summarize_meeting(
-            meeting.notes, meeting.participants
-        )
-        raw_commitments = await extract_commitments(
-            meeting.notes, meeting.participants
-        )
+        meeting.summary = await summarize_meeting(meeting.notes, meeting.participants)
+        raw_commitments = await extract_commitments(meeting.notes, meeting.participants)
 
         # 3. Store commitments
         from backend.routers.commitments import commitments_store
 
-        first_p_lower = meeting.participants[0].lower().strip() if meeting.participants else ""
+        first_p_lower = (
+            meeting.participants[0].lower().strip() if meeting.participants else ""
+        )
         for rc in raw_commitments:
             cid = str(uuid.uuid4())
             owner_lower = rc.get("owner", "").lower().strip()

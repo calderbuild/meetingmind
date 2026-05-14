@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 # --- Meeting ---
 
+
 class MeetingInput(BaseModel):
     title: str = Field(..., max_length=200)
     participants: list[str] = Field(..., max_length=50)
@@ -37,6 +38,7 @@ class MeetingResponse(BaseModel):
 
 # --- Commitment ---
 
+
 class CommitmentStatus(str, Enum):
     PENDING = "pending"
     COMPLETED = "completed"
@@ -44,7 +46,7 @@ class CommitmentStatus(str, Enum):
 
 
 class CommitmentDirection(str, Enum):
-    I_OWE = "i_owe"       # I promised someone
+    I_OWE = "i_owe"  # I promised someone
     OWED_TO_ME = "owed_to_me"  # Someone promised me
 
 
@@ -69,11 +71,13 @@ class CommitmentUpdate(BaseModel):
 
 # --- Briefing ---
 
+
 class BriefingRequest(BaseModel):
     contact_name: str = Field(..., max_length=100)
 
 
 # --- Search ---
+
 
 class SearchRequest(BaseModel):
     query: str = Field(..., max_length=1000)
@@ -89,9 +93,10 @@ class SearchResult(BaseModel):
     relevance_score: float | None = None
 
 
-# --- EverMemOS memory types ---
+# --- EverOS memory types ---
 
-class EverMemOSMemoryType(str, Enum):
+
+class EverOSMemoryType(str, Enum):
     EPISODIC = "episodic_memory"
     PROFILE = "profile"
     FORESIGHT = "foresight"

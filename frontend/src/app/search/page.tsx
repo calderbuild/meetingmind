@@ -76,7 +76,8 @@ function MemoryTypeBadge({ type }: { type: string }) {
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [contact, setContact] = useState("");
-  const [retrieveMethod, setRetrieveMethod] = useState<RetrieveMethod>("hybrid");
+  const [retrieveMethod, setRetrieveMethod] =
+    useState<RetrieveMethod>("hybrid");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -94,7 +95,7 @@ export default function SearchPage() {
       const data = await searchMemories(
         query.trim(),
         contact.trim() || undefined,
-        { retrieve_method: retrieveMethod }
+        { retrieve_method: retrieveMethod },
       );
       setResults(data);
     } catch {
@@ -112,11 +113,9 @@ export default function SearchPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <h1 className="font-display text-3xl text-foreground">
-          Search Memory
-        </h1>
+        <h1 className="font-display text-3xl text-foreground">Search Memory</h1>
         <p className="mt-1 mb-6 text-muted-foreground">
-          Search across all meeting memories stored in EverMemOS.
+          Search across all meeting memories stored in EverOS.
         </p>
       </motion.div>
 
@@ -154,7 +153,9 @@ export default function SearchPage() {
 
               {/* Retrieval method selector */}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Retrieval:</span>
+                <span className="text-xs text-muted-foreground">
+                  Retrieval:
+                </span>
                 {RETRIEVE_METHODS.map((m) => {
                   const Icon = m.icon;
                   const active = retrieveMethod === m.value;

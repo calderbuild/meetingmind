@@ -1,4 +1,4 @@
-"""EverMemOS client with Cloud API and Mock mode support."""
+"""EverOS client with Cloud API and Mock mode support."""
 
 import json
 from datetime import datetime, timezone
@@ -9,7 +9,7 @@ import httpx
 from backend.config import settings
 
 
-class EverMemOSClient(Protocol):
+class EverOSClient(Protocol):
     async def store_message(
         self,
         message_id: str,
@@ -40,13 +40,13 @@ class EverMemOSClient(Protocol):
 
 
 class CloudClient:
-    """EverMemOS Cloud API client (api.evermind.ai/api/v0)."""
+    """EverOS Cloud API client (api.evermind.ai/api/v0)."""
 
     def __init__(self):
-        self.base_url = f"{settings.evermemos_base_url}/api/v0"
+        self.base_url = f"{settings.everos_base_url}/api/v0"
         self.headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {settings.evermemos_api_key}",
+            "Authorization": f"Bearer {settings.everos_api_key}",
         }
 
     async def store_message(self, **kwargs) -> dict:
@@ -113,7 +113,7 @@ class CloudClient:
 
 
 class MockClient:
-    """In-memory mock for development without EverMemOS."""
+    """In-memory mock for development without EverOS."""
 
     def __init__(self):
         self._memories: list[dict] = []
@@ -187,13 +187,13 @@ class MockClient:
         }
 
 
-_instance: EverMemOSClient | None = None
+_instance: EverOSClient | None = None
 
 
-def get_client() -> EverMemOSClient:
+def get_client() -> EverOSClient:
     global _instance
     if _instance is None:
-        if settings.evermemos_mode == "cloud":
+        if settings.everos_mode == "cloud":
             _instance = CloudClient()
         else:
             _instance = MockClient()
